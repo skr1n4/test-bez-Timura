@@ -65,6 +65,36 @@
         .author-name { font-weight: 700; font-size: 15px; }
         .author-role { font-size: 13px; color: #6b7280; }
 
+        .comments-carousel {
+            display: flex;
+            flex-direction: row;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 0 24px 24px 24px;
+            -webkit-overflow-scrolling: touch;
+            max-width: 1200px;
+            margin: 0 auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+        .comments-carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+        .comments-carousel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .comments-carousel::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .comments-carousel > div {
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 400px;
+            scroll-snap-align: start;
+        }
+
         .pricing { background: #f5f6fa; }
         .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
         .pricing-card { background: #fff; border-radius: 20px; padding: 36px; border: 2px solid #eef0f4; transition: all 0.4s ease; cursor: pointer; }
@@ -107,7 +137,20 @@
         .contact-value:hover { color: #2196F3; }
 
         @media (max-width: 1024px) { .hero h1 { font-size: 44px; } .principles-grid, .steps-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 768px) { header { padding: 12px 20px; } nav { gap: 16px; } nav a:not(.btn-nav) { display: none; } section { padding: 60px 20px; } .hero { padding: 100px 20px 60px; } .hero h1 { font-size: 36px; } .section-title { font-size: 28px; } .principles-grid, .steps-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; } .footer-content { flex-direction: column; gap: 32px; } .footer-links { gap: 32px; } .footer-bottom { flex-direction: column; gap: 8px; } }
+        @media (max-width: 768px) { 
+            header { padding: 12px 20px; } 
+            nav { gap: 16px; } 
+            nav a:not(.btn-nav) { display: none; } 
+            section { padding: 60px 20px; } 
+            .hero { padding: 100px 20px 60px; } 
+            .hero h1 { font-size: 36px; } 
+            .section-title { font-size: 28px; } 
+            .principles-grid, .steps-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; } 
+            .footer-content { flex-direction: column; gap: 32px; } 
+            .footer-links { gap: 32px; } 
+            .footer-bottom { flex-direction: column; gap: 8px; }
+            .comments-carousel > div { max-width: 85vw; }
+        }
         @media (max-width: 480px) { .hero h1 { font-size: 32px; } .btn-primary { padding: 14px 28px; font-size: 15px; } .pricing-price { font-size: 32px; } }
     </style>
 </head>
@@ -179,7 +222,7 @@
             <div class="section-label">Отзывы клиентов</div>
             <h2 class="section-title">Что говорят о нас</h2>
             
-            <div id="commentsList" style="display: flex; flex-direction: column; gap: 24px; max-width: 800px; margin: 0 auto;">
+            <div id="commentsList" class="comments-carousel">
                 <!-- Комментарии будут добавляться сюда -->
             </div>
         </div>
@@ -349,7 +392,7 @@
             const comments = JSON.parse(localStorage.getItem('forpost_comments') || '[]');
             commentsList.innerHTML = '';
             if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4;">Пока нет отзывов. Будьте первым!</p>';
+                commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4; width: 100%; max-width: 100%;">Пока нет отзывов. Будьте первым!</p>';
                 return;
             }
             comments.forEach(comment => {
