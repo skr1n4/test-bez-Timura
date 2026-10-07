@@ -223,7 +223,7 @@
             <h2 class="section-title">Что говорят о нас</h2>
             
             <div id="commentsList" class="comments-carousel">
-                <!-- Комментарии будут добавляться сюда -->
+                <!-- Комментарии будут добавляться сюда из облачной базы -->
             </div>
         </div>
     </section>
@@ -328,7 +328,96 @@
         </div>
     </div>
 
+    <!-- 1. Подключение облачной базы данных (Firebase) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ⚠️ ВАЖНО: Замени этот блок на свои данные из консоли Firebase (инструкция выше)
+        const firebaseConfig = {
+            apiKey: "ВСТАВЬ_СЮДА_API_KEY",
+            authDomain: "ВСТАВЬ_СЮДА_PROJECT_ID.firebaseapp.com",
+            projectId: "ВСТАВЬ_СЮДА_PROJECT_ID",
+            storageBucket: "ВСТАВЬ_СЮДА_PROJECT_ID.appspot.com",
+            messagingSenderId: "ВСТАВЬ_СЮДА_SENDER_ID",
+            appId: "ВСТАВЬ_СЮДА_APP_ID"
+        };
+
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase не настроен. Добавь свои данные конфигурации.", e);
+        }
+
+        // Функция загрузки комментариев в реальном времени (обновляется у всех сразу)
+        function loadComments() {
+            const commentsList = document.getElementById('commentsList');
+            if (!db) {
+                commentsList.innerHTML = '<p style="text-align: center; color: #ef4444; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4; width: 100%; max-width: 100%;">⚠️ База данных не подключена. Владелец сайта должен вставить свой Firebase конфиг в код.</p>';
+                return;
+            }
+
+            commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4; width: 100%; max-width: 100%;">Загрузка отзывов...</p>';
+            
+            const q = query(collection(db, "comments"), orderBy("date", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                commentsList.innerHTML = '';
+                if (snapshot.empty) {
+                    commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4; width: 100%; max-width: 100%;">Пока нет отзывов. Будьте первым!</p>';
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const comment = doc.data();
+                    const div = document.createElement('div');
+                    div.className = 'testimonial-card';
+                    div.innerHTML = `
+                        <blockquote style="font-style: normal;">«${escapeHtml(comment.text)}»</blockquote>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">${escapeHtml(comment.name.charAt(0).toUpperCase())}</div>
+                            <div>
+                                <div class="author-name">${escapeHtml(comment.name)}</div>
+                                <div class="author-role">${new Date(comment.date).toLocaleDateString('ru-RU')}</div>
+                            </div>
+                        </div>
+                    `;
+                    commentsList.appendChild(div);
+                });
+            });
+        }
+
+        // Функция отправки комментария в облако
+        async function submitComment(name, text) {
+            if (!db) return false;
+            try {
+                await addDoc(collection(db, "comments"), {
+                    name: name,
+                    text: text,
+                    date: new Date().toISOString()
+                });
+                return true;
+            } catch (e) {
+                console.error("Ошибка при добавлении комментария: ", e);
+                return false;
+            }
+        }
+
+        // Делаем функции доступными для остального кода на странице
+        window.loadComments = loadComments;
+        window.submitComment = submitComment;
+    </script>
+
+    <!-- 2. Основной скрипт сайта -->
     <script>
+        // Вспомогательная функция для безопасности (защита от XSS)
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // 1. Переключение синей рамки при клике на карточку
         function selectPricing(clickedCard) {
             document.querySelectorAll('.pricing-card').forEach(card => card.classList.remove('selected'));
@@ -339,8 +428,7 @@
         document.querySelectorAll('.btn-pricing').forEach(btn => {
             btn.addEventListener('click', function() {
                 const card = this.closest('.pricing-card');
-                const planName = card.querySelector('h3').textContent.trim(); // Light, Medium или Strong
-                
+                const planName = card.querySelector('h3').textContent.trim();
                 localStorage.setItem('selectedPlan', planName);
                 const baseUrl = "https://timurs-ops.github.io/forpost/";
                 this.setAttribute('href', baseUrl + '?plan=' + encodeURIComponent(planName));
@@ -378,42 +466,11 @@
             }
         });
 
-        // 5. Работа с комментариями (сохранение и отображение)
+        // 5. Работа с комментариями (отправка формы)
         const commentForm = document.getElementById('commentForm');
-        const commentsList = document.getElementById('commentsList');
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function loadComments() {
-            const comments = JSON.parse(localStorage.getItem('forpost_comments') || '[]');
-            commentsList.innerHTML = '';
-            if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4; width: 100%; max-width: 100%;">Пока нет отзывов. Будьте первым!</p>';
-                return;
-            }
-            comments.forEach(comment => {
-                const div = document.createElement('div');
-                div.className = 'testimonial-card';
-                div.innerHTML = `
-                    <blockquote style="font-style: normal;">«${escapeHtml(comment.text)}»</blockquote>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">${escapeHtml(comment.name.charAt(0).toUpperCase())}</div>
-                        <div>
-                            <div class="author-name">${escapeHtml(comment.name)}</div>
-                            <div class="author-role">${new Date(comment.date).toLocaleDateString('ru-RU')}</div>
-                        </div>
-                    </div>
-                `;
-                commentsList.appendChild(div);
-            });
-        }
 
         if (commentForm) {
-            commentForm.addEventListener('submit', function(e) {
+            commentForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const nameInput = document.getElementById('commentName');
                 const textInput = document.getElementById('commentText');
@@ -421,20 +478,33 @@
                 const text = textInput.value.trim();
                 
                 if (name && text) {
-                    const comments = JSON.parse(localStorage.getItem('forpost_comments') || '[]');
-                    comments.unshift({ name, text, date: new Date().toISOString() });
-                    localStorage.setItem('forpost_comments', JSON.stringify(comments));
+                    const submitBtn = commentForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = 'Отправка...';
+                    submitBtn.disabled = true;
+
+                    const success = await window.submitComment(name, text);
                     
-                    nameInput.value = '';
-                    textInput.value = '';
-                    loadComments();
-                    closeCommentPopup();
+                    if (success) {
+                        nameInput.value = '';
+                        textInput.value = '';
+                        closeCommentPopup();
+                    } else {
+                        alert('Ошибка при отправке. Проверьте подключение к интернету или настройки базы данных.');
+                    }
+                    
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
                 }
             });
         }
 
         // Загружаем комментарии при загрузке страницы
-        loadComments();
+        if (window.loadComments) {
+            window.loadComments();
+        } else {
+            setTimeout(() => window.loadComments && window.loadComments(), 500);
+        }
     </script>
 </body>
 </html>
