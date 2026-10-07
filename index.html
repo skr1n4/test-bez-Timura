@@ -57,14 +57,6 @@
         .step-card p { font-size: 14px; color: #6b7280; line-height: 1.7; }
 
         .testimonials { background: #fff; }
-        .testimonials-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
-        .testimonial-card { background: #f8f9fc; border-radius: 16px; padding: 36px; border: 1px solid #eef0f4; }
-        .testimonial-card blockquote { font-size: 15px; color: #374151; line-height: 1.7; margin-bottom: 24px; font-style: normal; }
-        .testimonial-author { display: flex; align-items: center; gap: 14px; }
-        .author-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: #1a1a2e; }
-        .author-name { font-weight: 700; font-size: 15px; }
-        .author-role { font-size: 13px; color: #6b7280; }
-
         .comments-carousel {
             display: flex;
             flex-direction: row;
@@ -78,22 +70,21 @@
             scrollbar-width: thin;
             scrollbar-color: #cbd5e1 transparent;
         }
-        .comments-carousel::-webkit-scrollbar {
-            height: 6px;
-        }
-        .comments-carousel::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .comments-carousel::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
+        .comments-carousel::-webkit-scrollbar { height: 6px; }
+        .comments-carousel::-webkit-scrollbar-track { background: transparent; }
+        .comments-carousel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .comments-carousel > div {
             flex-shrink: 0;
             width: 100%;
             max-width: 400px;
             scroll-snap-align: start;
         }
+        .testimonial-card { background: #f8f9fc; border-radius: 16px; padding: 36px; border: 1px solid #eef0f4; }
+        .testimonial-card blockquote { font-size: 15px; color: #374151; line-height: 1.7; margin-bottom: 24px; font-style: normal; }
+        .testimonial-author { display: flex; align-items: center; gap: 14px; }
+        .author-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: #1a1a2e; }
+        .author-name { font-weight: 700; font-size: 15px; }
+        .author-role { font-size: 13px; color: #6b7280; }
 
         .pricing { background: #f5f6fa; }
         .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
@@ -145,7 +136,7 @@
             .hero { padding: 100px 20px 60px; } 
             .hero h1 { font-size: 36px; } 
             .section-title { font-size: 28px; } 
-            .principles-grid, .steps-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; } 
+            .principles-grid, .steps-grid, .pricing-grid { grid-template-columns: 1fr; } 
             .footer-content { flex-direction: column; gap: 32px; } 
             .footer-links { gap: 32px; } 
             .footer-bottom { flex-direction: column; gap: 8px; }
@@ -242,7 +233,7 @@
                         <li>4 поста в месяц</li>
                         <li>Базовая реклама</li>
                     </ul>
-                    <a href="https://timurs-ops.github.io/forpost/" class="btn-pricing">Выбрать</a>
+                    <a href="https://skr1n4.github.io/test2-bez-Timura/" class="btn-pricing">Выбрать</a>
                 </div>
                 <div class="pricing-card selected" onclick="selectPricing(this)">
                     <a href="#home" style="text-decoration: none; color: inherit; display: block;"><h3>Medium</h3></a>
@@ -253,7 +244,7 @@
                         <li>Таргетированная реклама</li>
                         <li>Комьюнити-менеджмент</li>
                     </ul>
-                    <a href="https://timurs-ops.github.io/forpost/" class="btn-pricing">Выбрать</a>
+                    <a href="https://skr1n4.github.io/test2-bez-Timura/" class="btn-pricing">Выбрать</a>
                 </div>
                 <div class="pricing-card" onclick="selectPricing(this)">
                     <a href="#home" style="text-decoration: none; color: inherit; display: block;"><h3>Strong</h3></a>
@@ -264,7 +255,7 @@
                         <li>Безлимитный контент</li>
                         <li>Работа с блогерами</li>
                     </ul>
-                    <a href="https://timurs-ops.github.io/forpost/" class="btn-pricing">Выбрать</a>
+                    <a href="https://skr1n4.github.io/test2-bez-Timura/" class="btn-pricing">Выбрать</a>
                 </div>
             </div>
         </div>
@@ -335,14 +326,14 @@
             clickedCard.classList.add('selected');
         }
 
-        // 2. ПЕРЕДАЧА НАЗВАНИЯ ТАРИФА ВО ВНЕШНЮЮ ФОРМУ
+        // 2. ПЕРЕДАЧА НАЗВАНИЯ ТАРИФА И ПЕРЕАДРЕСАЦИЯ
         document.querySelectorAll('.btn-pricing').forEach(btn => {
             btn.addEventListener('click', function() {
                 const card = this.closest('.pricing-card');
                 const planName = card.querySelector('h3').textContent.trim(); // Light, Medium или Strong
                 
                 localStorage.setItem('selectedPlan', planName);
-                const baseUrl = "https://timurs-ops.github.io/forpost/";
+                const baseUrl = "https://skr1n4.github.io/test2-bez-Timura/";
                 this.setAttribute('href', baseUrl + '?plan=' + encodeURIComponent(planName));
             });
         });
