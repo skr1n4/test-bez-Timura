@@ -117,7 +117,7 @@
         <a href="#" class="logo"><div class="logo-circle"></div>Форпост</a>
         <nav>
             <a href="#services">Услуги</a>
-            <a href="#testimonials">Отзывы</a>
+            <a href="#" onclick="openCommentPopup(); return false;">Отзывы</a>
             <a href="#about">О нас</a>
             <button class="btn-nav" onclick="openContactPopup()">Связаться</button>
         </nav>
@@ -177,16 +177,8 @@
     <section class="testimonials" id="testimonials">
         <div class="container">
             <div class="section-label">Отзывы клиентов</div>
-            <h2 class="section-title">Оставьте свой комментарий</h2>
+            <h2 class="section-title">Что говорят о нас</h2>
             
-            <div style="max-width: 600px; margin: 0 auto 40px; background: #fff; padding: 32px; border-radius: 16px; border: 1px solid #eef0f4; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <form id="commentForm" style="display: flex; flex-direction: column; gap: 16px;">
-                    <input type="text" id="commentName" placeholder="Ваше имя" required style="padding: 14px 16px; border: 1px solid #eef0f4; border-radius: 12px; font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.2s;">
-                    <textarea id="commentText" placeholder="Ваш комментарий" rows="4" required style="padding: 14px 16px; border: 1px solid #eef0f4; border-radius: 12px; font-size: 15px; font-family: inherit; resize: vertical; outline: none; transition: border-color 0.2s;"></textarea>
-                    <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer; background: #2196F3; color: #fff;">Оставить комментарий</button>
-                </form>
-            </div>
-
             <div id="commentsList" style="display: flex; flex-direction: column; gap: 24px; max-width: 800px; margin: 0 auto;">
                 <!-- Комментарии будут добавляться сюда -->
             </div>
@@ -262,6 +254,7 @@
         </div>
     </footer>
 
+    <!-- Попап с контактами -->
     <div class="contact-popup-overlay" id="contactPopup" onclick="closeContactPopup(event)">
         <div class="contact-popup" onclick="event.stopPropagation()">
             <button class="popup-close" onclick="closeContactPopup()">✕</button>
@@ -278,6 +271,20 @@
         </div>
     </div>
 
+    <!-- Попап с отзывами -->
+    <div class="contact-popup-overlay" id="commentPopup" onclick="closeCommentPopup(event)">
+        <div class="contact-popup" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closeCommentPopup()">✕</button>
+            <h3>Оставить отзыв</h3>
+            <p>Поделитесь своим опытом работы с нами</p>
+            <form id="commentForm" style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+                <input type="text" id="commentName" placeholder="Ваше имя" required style="padding: 14px 16px; border: 1px solid #eef0f4; border-radius: 12px; font-size: 15px; font-family: inherit; outline: none; transition: border-color 0.2s;">
+                <textarea id="commentText" placeholder="Ваш комментарий" rows="4" required style="padding: 14px 16px; border: 1px solid #eef0f4; border-radius: 12px; font-size: 15px; font-family: inherit; resize: vertical; outline: none; transition: border-color 0.2s;"></textarea>
+                <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer; background: #2196F3; color: #fff;">Отправить</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // 1. Переключение синей рамки при клике на карточку
         function selectPricing(clickedCard) {
@@ -291,14 +298,9 @@
                 const card = this.closest('.pricing-card');
                 const planName = card.querySelector('h3').textContent.trim(); // Light, Medium или Strong
                 
-                // Способ 1: Сохраняем в localStorage (внешняя форма может прочитать это значение через JS)
                 localStorage.setItem('selectedPlan', planName);
-                
-                // Способ 2: Добавляем параметр ?plan=... к ссылке для передачи через URL
                 const baseUrl = "https://timurs-ops.github.io/forpost/";
                 this.setAttribute('href', baseUrl + '?plan=' + encodeURIComponent(planName));
-                
-                // После этого браузер автоматически перейдёт по обновлённой ссылке
             });
         });
 
@@ -313,11 +315,27 @@
                 document.body.style.overflow = '';
             }
         }
+
+        // 4. Попап с отзывами
+        function openCommentPopup() {
+            document.getElementById('commentPopup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeCommentPopup(event) {
+            if (!event || event.target === document.getElementById('commentPopup')) {
+                document.getElementById('commentPopup').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
         document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') closeContactPopup();
+            if (event.key === 'Escape') {
+                closeContactPopup();
+                closeCommentPopup();
+            }
         });
 
-        // 4. Работа с комментариями (сохранение и отображение)
+        // 5. Работа с комментариями (сохранение и отображение)
         const commentForm = document.getElementById('commentForm');
         const commentsList = document.getElementById('commentsList');
 
@@ -331,7 +349,7 @@
             const comments = JSON.parse(localStorage.getItem('forpost_comments') || '[]');
             commentsList.innerHTML = '';
             if (comments.length === 0) {
-                commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px;">Пока нет комментариев. Будьте первым!</p>';
+                commentsList.innerHTML = '<p style="text-align: center; color: #6b7280; font-size: 15px; padding: 40px; background: #f8f9fc; border-radius: 16px; border: 1px solid #eef0f4;">Пока нет отзывов. Будьте первым!</p>';
                 return;
             }
             comments.forEach(comment => {
@@ -367,6 +385,7 @@
                     nameInput.value = '';
                     textInput.value = '';
                     loadComments();
+                    closeCommentPopup();
                 }
             });
         }
